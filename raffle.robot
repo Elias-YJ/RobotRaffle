@@ -8,10 +8,10 @@ ${RAFFLE_WEBSITE}    https://www.wheelofnames.com
 ${RAFFLE_NAVBAR}    //div[@class='navbar-brand']
 
 ${COOKIE_BANNER_IFRAME}    ifrmCookieBanner
-${REJECT_COOKIES_BUTTON}    //button[@class='sp-close-button']
+${REJECT_COOKIES_BUTTON}    //button[@aria-label='DISAGREE']
 
-${LIST_OF_NAMES}    names
-${FIRST_NAME_ON_LIST}    (//div[@id='names']/div)[1]
+${LIST_OF_NAMES}    entries
+${FIRST_NAME_ON_LIST}    (//div[@id='${LIST_OF_NAMES}']/div)[1]
 ${SHUFFLE_BUTTON}    //i[@class='fas fa-random']/ancestor::button
 ${RAFFLE_WHEEL_INSTRUCTION}    bottomInstruction
 ${RAFFLE_WHEEL}    wheelCanvas
@@ -36,11 +36,9 @@ Spin The Wheel
 *** Keywords ***
 Open Raffle Website
     Wait Until Page Contains Element    ${RAFFLE_NAVBAR}
-    Wait Until Page Contains Element    ${COOKIE_BANNER_IFRAME}    ${LONG_TIMEOUT}
+    Wait Until Page Contains Element    ${REJECT_COOKIES_BUTTON}    ${LONG_TIMEOUT}
     Maximize Browser Window
-    Select Frame    ${COOKIE_BANNER_IFRAME}
     Click Button    ${REJECT_COOKIES_BUTTON}
-    Unselect Frame
 
 Input And Shuffle Participants
     [Arguments]    ${list_of_participants}
@@ -61,13 +59,20 @@ Remove Names And Spin Until Winner Is Found
     ${amount_of_participants}=    Get Length    ${list_of_participants}
     ${iterations}=    Evaluate    ${amount_of_participants} - 2
     FOR    ${iteration}    IN RANGE    ${iterations}
-        Remove Name And Spin The Wheel
+        Round Number Of Participants Remaining    ${iteration}    ${iterations}
+		Remove Name And Spin The Wheel
     END
 
 Remove Name And Spin The Wheel
     ${eliminated_player}=    Remove Name From Raffle
     Log To Console    ${eliminated_player} was eliminated from the raffle
     Click Element    ${RAFFLE_WHEEL}
+	
+Round Number Of Participants Remaining
+	[Arguments]    ${iteration_number}    ${total}
+	${remaining}=    Evaluate    ${total}-${iteration_number}+2
+	${round}=    Evaluate    ${remaining}%10==0
+	Run Keyword If    ${round}    Log To Console    ${remaining} players remaining!
 
 Display The Winner
     ${last_eliminated_player}=    Remove Name From Raffle
