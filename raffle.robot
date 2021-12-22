@@ -27,6 +27,9 @@ ${LONG_TIMEOUT}    20 s
 *** Test Cases ***
 Spin The Wheel
     Open Raffle Website
+	#Uncomment the next line if you want to 
+	#manually edit raffle settings in the website
+	#Sleep    20 s
     Input And Shuffle Participants    ${PARTICIPANTS}
     Start Raffle
     Remove Names And Spin Until Winner Is Found    ${PARTICIPANTS}
